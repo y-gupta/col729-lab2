@@ -17,7 +17,7 @@ public:
 };
 
 class RegisterFactory{
-  static RegisterFactory *factory = NULL;
+  static RegisterFactory *factory;
   
   struct Store{ //each store holds 128 registers to avoid frequent new()
     Register reg[128];
@@ -60,10 +60,11 @@ public:
       res = stores->alloc();
       assert(res);
     }
-    res.id = id_counter++;
+    res->id = id_counter++;
     return res;
   }
   int size(){
     return id_counter;
   }
 };
+RegisterFactory* RegisterFactory::factory=NULL;

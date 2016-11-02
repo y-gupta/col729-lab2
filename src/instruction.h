@@ -38,10 +38,10 @@ public:
       case iend: printf(" end"); break;
 
       case icall: printf(" call"); op1.emit(); break;
-      case ibr: printf(" br"); (Instruction*)op1->emitAddr(); break;
+      case ibr: printf(" br"); ((Instruction*)op1)->emitAddr(); break;
 
-      case iblbc: printf(" blbc"); op1.emit(); (Instruction*)op2->emitAddr(); break;
-      case iblbs: printf(" blbs"); op1.emit(); (Instruction*)op2->emitAddr(); break;
+      case iblbc: printf(" blbc"); op1.emit(); ((Instruction*)op2)->emitAddr(); break;
+      case iblbs: printf(" blbs"); op1.emit(); ((Instruction*)op2)->emitAddr(); break;
 
       case icmpeq: printf(" cmpeq"); op1.emit(); op2.emit(); break;
       case icmple: printf(" cmple"); op1.emit(); op2.emit(); break;
@@ -57,5 +57,6 @@ public:
 
       case inop: printf(" nop"); break;
       default: printf(" unknown_instruction");
+    }
   }
 };

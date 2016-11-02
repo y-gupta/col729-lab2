@@ -1,6 +1,8 @@
 #pragma once
 
 #include "emitter.h"
+#include <cassert>
+#include <cstdio>
 
 class Register;
 class Instruction;
@@ -26,15 +28,15 @@ public:
   }
   operator Register*(){
     assert(type == typeReg);
-    return val;
+    return (Register*)val;
   }
   operator Instruction*(){
     assert(type == typeInst);
-    return val;
+    return (Instruction*)val;
   }
   operator Constant*(){
     assert(type == typeCons);
-    return val;
+    return (Constant*)val;
   }
   void emit() override;
 };
