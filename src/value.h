@@ -17,9 +17,18 @@ public:
   };
 
   Value():type(typeNone),val(0){}
-  Value(Register *reg):type(typeReg),val(reg){}
-  Value(Instruction *inst):type(typeInst),val(inst){}
-  Value(Constant *cons):type(typeCons),val(cons){}
+  void init(Register *reg){
+    type = typeReg;
+    val = (void*)reg;
+  }
+  void init(Instruction *inst){
+    type = typeInst;
+    val = (void*)inst;
+  }
+  void init(Constant *cons){
+    type = typeCons;
+    val = (void*)cons;
+  }
   int getType(){
     return type;
   }

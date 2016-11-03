@@ -2,7 +2,7 @@
 
 void Value::emit(){
   if(type!=typeNone)
-    (CodeEmitter*)reg->emit();
+    ((CodeEmitter*)val)->emit();
   else
     printf(" None");
 }
