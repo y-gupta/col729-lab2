@@ -47,5 +47,10 @@ public:
     assert(type == typeCons);
     return (Constant*)val;
   }
-  void emit() override;
+  void emit() override{
+    if(type!=typeNone)
+      ((CodeEmitter*)val)->emit();
+    else
+      printf(" None");
+  }
 };

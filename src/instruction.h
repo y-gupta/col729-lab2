@@ -16,7 +16,7 @@ public:
   int type, id;
   Register *out;  //virtual output register, may be NULL
   Value op1,op2;
-  Instruction():id(0),out(0),type(inop){
+  Instruction(int _id=0):id(_id),out(0),type(inop){
   }
   void emitAddr(){
     printf(" [%d]",id);
@@ -60,3 +60,35 @@ public:
     }
   }
 };
+
+class InstructionFactory{
+private:
+  static InstructionFactory* factory;
+  
+  map<int, Instruction> instructions;
+
+  InstructionFactory(){
+    assert(factory == NULL);
+  }
+public:
+  static InstructionFactory* _(){
+    if(factory==NULL)
+      factory = new InstructionFactory();
+    return factory;
+  }
+  Instruction* getInst(const int id){
+    if(instructions.find(id)==instructions.end())
+      instructions[id] = Instruction(id);
+    return &instructions[id];
+  }
+  int size(){
+    return instructions.size();
+  }
+  void print(){
+    for(auto& p:instructions){
+      p.second.emit();
+      cout<<endl;
+    }
+  }
+};
+InstructionFactory* InstructionFactory::factory=NULL;

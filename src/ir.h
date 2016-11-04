@@ -4,24 +4,16 @@
 #include <cstdio>
 using namespace std;
 #include "instruction.h"
-
+#include "register.h"
 
 class IR{
 public:
   string fname;
-  vector<Instruction*> instructions;
+  InstructionFactory* ifactory;
+  RegisterFactory* rfactory;
   IR(const string _fname):fname(_fname){
-    // instructions[0] = NULL
-    instructions.push_back(NULL);
-
-    // instructions[1...n]
-    FILE* file = fopen(fname.c_str(), "r");
-    char c;
-    while((c=fgetc(file))!=EOF){
-      if(c=='\n')
-        instructions.push_back(new Instruction());
-    }
-    fclose(file);
+    ifactory = InstructionFactory::_();
+    rfactory = RegisterFactory::_();
   }
   void read_op(FILE* file, Value& val){
     int i, j;
@@ -30,12 +22,12 @@ public:
     if(op[0]=='['){
       op[strlen(op)-1]='\0';
       i = atoi(op+1);
-      cout<<"inst "<<i<<" ";
+      val.init(ifactory->getInst(i));
     }
     else if(op[0]=='('){
       op[strlen(op)-1]='\0';
       i = atoi(op+1);
-      cout<<"reg "<<i<<" ";
+      val.init(rfactory->getReg(i));
     }
     else if(op[0]=='G'){
       cout<<"GP ";
@@ -55,12 +47,14 @@ public:
         cout<<"offset "<<i<<" ";
       }
       else if(j>0){
-        cout<<"virtual "<<i<<" ";
+        op[j-1]=0;
+        val.init(rfactory->getVar(op));
       }
       else{
         cout<<i<<" ";
       }
     }
+    // val.emit();
   }
   void read_inst(){
     FILE* file = fopen(fname.c_str(), "r");
@@ -72,7 +66,7 @@ public:
     int id;
     while(fscanf(file, " instr %d: %s ", &id, opcode)!=EOF){
       printf(" instr %d: %s ", id, opcode);
-      Instruction* inst = instructions[id];
+      Instruction* inst = InstructionFactory::_()->getInst(id);
       if(strcmp(opcode, "add")==0){
         inst->type = Instruction::iadd;
         read_op(file, inst->op1);
@@ -188,11 +182,6 @@ public:
       }
       printf("\n");
     }
+    ifactory->print();
   }
 };
-
-int main(){
-  IR ir("../out.3addr");
-  ir.read_inst();
-  return 0;
-}
