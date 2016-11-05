@@ -31,11 +31,25 @@ public:
 		succ_branch = block;
 	}
 	void emit() override{
-		Instruction* itr = leader;
-		while(itr){
-			itr->emit();
+		printf("Leader:\n");
+		leader->emit();cout<<endl;
+		// Instruction* itr = leader;
+		// while(itr){
+		// 	itr->emit();
+		// 	cout<<endl;
+		// 	itr = itr->next;
+		// }
+		printf("Succ:\n");
+		if(succ_next){
+			succ_next->leader->emit();cout<<endl;
+		}
+		if(succ_branch){
+			succ_branch->leader->emit();cout<<endl;
+		}
+		printf("Pred:\n");
+		for(auto i:preds){
+			i->leader->emit();
 			cout<<endl;
-			itr = itr->next;
 		}
 	}
 };
