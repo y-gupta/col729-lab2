@@ -1,7 +1,7 @@
-#include "ir.h"
+#include "program.h"
 
 int main(){
-  IR ir("../out.3addr");
-  ir.read_inst();
+  Program program("../out.3addr");  
+  program.emit();
   return 0;
 }

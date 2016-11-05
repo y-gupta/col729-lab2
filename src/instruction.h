@@ -16,7 +16,8 @@ public:
   int type, id;
   Register *out;  //virtual output register, may be NULL
   Value op1,op2;
-  Instruction(int _id=0):id(_id),out(0),type(inop){
+  Instruction *next;
+  Instruction():id(0),out(0),type(inop),next(NULL){
   }
   void emitAddr(){
     printf(" [%d]",id);
@@ -38,10 +39,10 @@ public:
       case iend: printf(" end"); break;
 
       case icall: printf(" call"); op1.emit(); break;
-      case ibr: printf(" br"); ((Instruction*)op1)->emitAddr(); break;
+      case ibr: printf(" br"); op1.emit(); break;
 
-      case iblbc: printf(" blbc"); op1.emit(); ((Instruction*)op2)->emitAddr(); break;
-      case iblbs: printf(" blbs"); op1.emit(); ((Instruction*)op2)->emitAddr(); break;
+      case iblbc: printf(" blbc"); op1.emit(); op2.emit(); break;
+      case iblbs: printf(" blbs"); op1.emit(); op2.emit(); break;
 
       case icmpeq: printf(" cmpeq"); op1.emit(); op2.emit(); break;
       case icmple: printf(" cmple"); op1.emit(); op2.emit(); break;
@@ -78,7 +79,7 @@ public:
   }
   Instruction* getInst(const int id){
     if(instructions.find(id)==instructions.end())
-      instructions[id] = Instruction(id);
+      instructions[id] = Instruction();
     return &instructions[id];
   }
   int size(){

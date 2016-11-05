@@ -10,12 +10,16 @@ class Constant;
 
 class Value: public CodeEmitter{
   int type;
-  void *val;
 public:
+  union{
+    void *val;
+    Register *reg;
+    Constant *cons;
+    Instruction *inst;
+  };
   enum{
     typeNone, typeReg, typeCons, typeInst
   };
-
   Value():type(typeNone),val(0){}
   void init(Register *reg){
     type = typeReg;
