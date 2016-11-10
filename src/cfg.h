@@ -1,34 +1,33 @@
 #include "program.h"
 #include "basic_block.h"
-
+#include "instruction.h"
 class CFG{
 public:
-	BasicBlockFactory* bfactory;
-	CFG(){
-		bfactory = BasicBlockFactory::_();
-	}
-	void create(const vector<Instruction*>& insts){
-		vector<int> is_leader(insts.size(), 0);
-		is_leader[0]=1;
-		bfactory->getBlock(insts[0]);
-		for(int i=1;i<insts.size();i++){
-			switch(insts[i]->type){
-				case Instruction::ienter:
-					is_leader[i]=1;
-					bfactory->getBlock(insts[i]);
-					break;
-				case Instruction::iblbc:
-				case Instruction::iblbs:
-					if(i<insts.size()-1)is_leader[i+1]=1;
-					is_leader[((Instruction*)(insts[i]->op2))->line]=1;
-					break;
-				case Instruction::icall:
-				case Instruction::ibr:
-					if(i<insts.size()-1)is_leader[i+1]=1;
-					is_leader[((Instruction*)(insts[i]->op1))->line]=1;
-					break;
-			}
+	map<BasicBlock*, vector<BasicBlock*> > graph;
+	CFG(){}
+	void init(map<Instruction*, BasicBlock*>& blocks){
+		for(auto& p:blocks){
+			BasicBlock* block = p.second;
+			graph[block] = {};
+			if(block->succ_next)
+				graph[block].push_back(block->succ_next);
+			if(block->succ_branch)
+				graph[block].push_back(block->succ_branch);
 		}
-		BasicBlock* current=bfactory->getBlock(insts[0]);
-	}		
+	}
+	void print(){
+		printf("Basic blocks: ");
+		for(auto& p:graph){
+			printf("%d ", p.first->getId());
+		}
+		printf("\nCFG:\n");
+		for(auto& p:graph){
+			auto v = p.second;
+			printf("%d -> ", p.first->getId());
+			for(auto& b:v){
+				printf("%d ", b->getId());
+			}
+			printf("\n");
+		}
+	}
 };

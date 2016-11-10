@@ -1,4 +1,7 @@
 #pragma once
+#include <iostream>
+#include <cstdio>
+using namespace std;
 
 class CodeEmitter{
 public:

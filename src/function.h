@@ -1,21 +1,28 @@
-#include "emitter.h"
+#pragma once
 #include "basic_block.h"
+#include "cfg.h"
+#include <map>
+using namespace std;
 
 class Function: public CodeEmitter{
 public:
 	Instruction* leader;
-	map<Instruction*, BasicBlock> blocks;
+	map<Instruction*, BasicBlock*> blocks;
 	bool is_main;
+	CFG cfg;
 	Function(Instruction* _leader=NULL, bool _is_main=false):leader(_leader), is_main(_is_main){
 	}
 	void init(){
 		createBlocks();
 	}
+	void createCFG(){
+		cfg.init(blocks);
+	}
 	BasicBlock* getBlock(Instruction* leader){
     if(blocks.find(leader)==blocks.end()){
-      blocks[leader] = BasicBlock(leader);
+      blocks[leader] = new BasicBlock(leader);
     }
-    return &blocks[leader];
+    return blocks[leader];
   }
 	void createBlocks(){
 		// Creating leaders
@@ -69,11 +76,14 @@ public:
 			prev = inst;
 			inst = inst->next;
 		}
+		createCFG();
 	}
 	void emit() override{
-		for(auto& p:blocks){
-			p.second.emit();
-			cout<<endl;
-		}
+		printf("Function: %d\n", leader->id);
+		cfg.print();
+		// for(auto& p:blocks){
+		// 	p.second->emit();
+		// 	cout<<endl;
+		// }
 	}
 };

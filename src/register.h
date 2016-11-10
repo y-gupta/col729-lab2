@@ -1,5 +1,4 @@
 #pragma once
-
 #include "emitter.h"
 #include <cstring>
 #include <map>

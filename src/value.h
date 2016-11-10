@@ -21,17 +21,17 @@ public:
     typeNone, typeReg, typeCons, typeInst
   };
   Value():type(typeNone),val(0){}
-  void init(Register *reg){
+  void init(Register *_reg){
     type = typeReg;
-    val = (void*)reg;
+    reg = _reg;
   }
-  void init(Instruction *inst){
+  void init(Instruction *_inst){
     type = typeInst;
-    val = (void*)inst;
+    inst = _inst;
   }
-  void init(Constant *cons){
+  void init(Constant *_cons){
     type = typeCons;
-    val = (void*)cons;
+    cons = _cons;
   }
   int getType(){
     return type;
