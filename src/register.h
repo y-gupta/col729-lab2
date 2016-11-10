@@ -27,7 +27,7 @@ public:
 class RegisterFactory{
 private:
   static RegisterFactory* factory;
-  
+
   map<int, Register> virtual_regs;
   map<string, Register> local_vars;
 

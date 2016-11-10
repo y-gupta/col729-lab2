@@ -1,4 +1,9 @@
 #pragma once
+
+#include <vector>
+#include <map>
+#include <cstdio>
+
 #include "emitter.h"
 #include "value.h"
 #include "register.h"
@@ -62,8 +67,8 @@ public:
 class InstructionFactory{
 private:
   static InstructionFactory* factory;
-  
-  map<int, Instruction> instructions;
+
+  std::map<int, Instruction> instructions;
 
   InstructionFactory(){
     assert(factory == NULL);
@@ -85,7 +90,7 @@ public:
   void print(){
     for(auto& p:instructions){
       p.second.emit();
-      cout<<endl;
+      printf("\n");
     }
   }
 };
