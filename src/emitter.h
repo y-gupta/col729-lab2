@@ -5,5 +5,6 @@ using namespace std;
 
 class CodeEmitter{
 public:
+  string meta;
   virtual void emit() = 0;
 };

@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <cstdio>
+#include <string>
 
 #include "emitter.h"
 #include "value.h"
@@ -61,6 +62,7 @@ public:
       case inop: printf(" nop"); break;
       default: printf(" unknown_instruction");
     }
+    printf(" ;%s\n", meta.c_str());
   }
 };
 

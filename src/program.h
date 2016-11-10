@@ -11,7 +11,7 @@ public:
   InstructionFactory *ifactory;
   RegisterFactory *rfactory;
   ConstantFactory *cfactory;
-  map<Instruction*, Function> functions; 
+  map<Instruction*, Function> functions;
   Program(const string _fname):fname(_fname){
     // File
     file = fopen(fname.c_str(), "r");
