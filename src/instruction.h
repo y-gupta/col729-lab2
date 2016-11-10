@@ -1,7 +1,4 @@
 #pragma once
-
-#include <vector>
-
 #include "emitter.h"
 #include "value.h"
 #include "register.h"

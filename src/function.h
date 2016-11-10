@@ -1,5 +1,7 @@
-#include "emitter.h"
+#pragma once
 #include "basic_block.h"
+#include <map>
+using namespace std;
 
 class Function: public CodeEmitter{
 public:

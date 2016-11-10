@@ -1,14 +1,8 @@
-#include <iostream>
-#include <vector>
-#include <cstring>
-#include <cstdio>
-using namespace std;
-
+#pragma once
 #include "instruction.h"
 #include "register.h"
 #include "constant.h"
 #include "function.h"
-#include "emitter.h"
 
 class Program:public CodeEmitter{
 public:

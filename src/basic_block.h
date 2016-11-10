@@ -1,6 +1,7 @@
 #pragma once
-
 #include "emitter.h"
+#include <vector>
+using namespace std;
 
 class BasicBlock:public CodeEmitter{
 private:
