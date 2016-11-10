@@ -16,7 +16,7 @@ public:
 		createBlocks();
 	}
 	void createCFG(){
-		cfg.init(blocks);
+		cfg.init(getBlock(leader), blocks);
 	}
 	BasicBlock* getBlock(Instruction* leader){
     if(blocks.find(leader)==blocks.end()){
@@ -36,7 +36,6 @@ public:
 					getBlock(inst->op2.inst);
 					break;
 				case Instruction::ibr:
-					if(inst->next)getBlock(inst->next);
 					getBlock(inst->op1.inst);
 					break;
 				case Instruction::icall:
@@ -63,14 +62,18 @@ public:
 					block->addSuccBranch(tmp), tmp->addPred(block);
 					break;
 				case Instruction::ibr:
-					tmp = getBlock(inst->next);
-					block->addSuccNext(tmp), tmp->addPred(block);
 					tmp =	getBlock(inst->op1.inst);
 					block->addSuccBranch(tmp), tmp->addPred(block);
 					break;
 				case Instruction::icall:
 					tmp = getBlock(inst->next);
 					block->addSuccNext(tmp), tmp->addPred(block);
+					break;
+				default:
+					if(blocks.find(inst->next)!=blocks.end()){
+						tmp = getBlock(inst->next);
+						block->addSuccNext(tmp), tmp->addPred(block);
+					}
 					break;
 			}
 			prev = inst;

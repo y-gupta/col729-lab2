@@ -1,39 +1,45 @@
 #pragma once
 #include "emitter.h"
-#include <vector>
+#include <set>
 using namespace std;
 
 class BasicBlock:public CodeEmitter{
-public:
+private:
 	Instruction* leader;
-	vector<BasicBlock*> preds;
+	set<BasicBlock*> preds, succs;
 	BasicBlock *succ_next, *succ_branch;
 public:
 	BasicBlock(){
-		leader = NULL;		
-		succ_next = NULL;
-		succ_branch = NULL;
+		leader = NULL;
+		succ_next = succ_branch = NULL;
 	}
 	BasicBlock(Instruction* _leader):leader(_leader){
 		assert(leader!=NULL);
-		succ_next = NULL;
-		succ_branch = NULL;
+		succ_next = succ_branch = NULL;
 	}
 	int getId(){
 		assert(leader!=NULL);
 		return leader->id;
 	}
+	set<BasicBlock*> getPred(){
+		return preds;
+	}
+	set<BasicBlock*> getSucc(){
+		return succs;
+	}
 	void addPred(BasicBlock* block){
 		assert(block!=NULL);
-		preds.push_back(block);
+		preds.insert(block);
 	}
 	void addSuccNext(BasicBlock* block){
 		assert(block!=NULL);
 		succ_next = block;
+		succs.insert(block);
 	}
 	void addSuccBranch(BasicBlock* block){
 		assert(block!=NULL);
 		succ_branch = block;
+		succs.insert(block);
 	}
 	void emit() override{
 		printf("Leader:\n");
