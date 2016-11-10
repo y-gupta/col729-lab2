@@ -1,22 +1,25 @@
 #pragma once
 
 #include <vector>
+#include <map>
+#include <cassert>
+#include <cstdio>
 
 #include "emitter.h"
 
 class Constant : public CodeEmitter{
 public:
   enum{
-    typeLong, typeGP, typeFP 
+    typeLong, typeGP, typeFP
   };
   int type, id;
   Constant(int _id=0, int _type=typeLong):id(_id),type(_type){
   }
   void emit() override{
     switch(type){
-      case typeLong:  printf(" %d ",id); break;
-      case typeGP:    printf(" GP "); break;
-      case typeFP:    printf(" LP "); break;
+      case typeLong:  printf(" %d",id); break;
+      case typeGP:    printf(" GP"); break;
+      case typeFP:    printf(" LP"); break;
       default: printf(" unknown constant");
     }
   }
@@ -25,8 +28,8 @@ public:
 class ConstantFactory{
 private:
   static ConstantFactory* factory;
-  
-  map<int, Constant> constants;
+
+  std::map<int, Constant> constants;
   Constant gp;
   Constant fp;
 
@@ -56,7 +59,7 @@ public:
   void print(){
     for(auto& p:constants){
       p.second.emit();
-      cout<<endl;
+      printf("\n");
     }
   }
 };
