@@ -4,7 +4,7 @@
 using namespace std;
 
 class BasicBlock:public CodeEmitter{
-private:
+public:
 	Instruction* leader;
 	vector<BasicBlock*> preds;
 	BasicBlock *succ_next, *succ_branch;
@@ -18,6 +18,10 @@ public:
 		assert(leader!=NULL);
 		succ_next = NULL;
 		succ_branch = NULL;
+	}
+	int getId(){
+		assert(leader!=NULL);
+		return leader->id;
 	}
 	void addPred(BasicBlock* block){
 		assert(block!=NULL);
