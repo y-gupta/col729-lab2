@@ -10,6 +10,7 @@
 #include "register.h"
 
 class Instruction : public CodeEmitter{
+  static vector<Instruction*> store;
 public:
   enum{
     ineg, iadd, isub, imul, idiv, imod, iparam, ienter, ileave, iend, iload,
@@ -17,13 +18,34 @@ public:
     iread, iwrite, iwrl, inop, ientrypc
   };
   int type, id;
-  Register *out;  //virtual output register, may be NULL
+  Register *out;  //virtual output register
   Value op1,op2;
   Instruction *next;
-  Instruction():id(0),out(0),type(inop),next(NULL){
+
+  Instruction(){
+    id = -1;
+    next = NULL;
+    type = inop;
+    out = Register::alloc();
+  }
+  static Instruction* alloc(){
+    auto inst = new Instruction();
+    store.push_back(inst);
+    return inst;
+  }
+  static void free(){
+    for(auto inst: store){
+      delete inst;
+    }
+    store.clear();
   }
   void emitAddr(){
     printf(" [%d]",id);
+  }
+  int schedule(int _id) override{
+    id = _id;
+    out->id = _id;
+    return _id+1;
   }
   void emit() override{
     switch(type){
@@ -66,34 +88,4 @@ public:
   }
 };
 
-class InstructionFactory{
-private:
-  static InstructionFactory* factory;
-
-  std::map<int, Instruction> instructions;
-
-  InstructionFactory(){
-    assert(factory == NULL);
-  }
-public:
-  static InstructionFactory* _(){
-    if(factory==NULL)
-      factory = new InstructionFactory();
-    return factory;
-  }
-  Instruction* getInst(const int id){
-    if(instructions.find(id)==instructions.end())
-      instructions[id] = Instruction();
-    return &instructions[id];
-  }
-  int size(){
-    return instructions.size();
-  }
-  void print(){
-    for(auto& p:instructions){
-      p.second.emit();
-      printf("\n");
-    }
-  }
-};
-InstructionFactory* InstructionFactory::factory=NULL;
+vector<Instruction*>  Instruction::store = vector<Instruction*>();

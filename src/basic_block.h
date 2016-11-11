@@ -1,20 +1,23 @@
 #pragma once
-#include "emitter.h"
+
+#include <cassert>
 #include <set>
+
+#include "emitter.h"
+#include "instruction.h"
+
 using namespace std;
 
 class BasicBlock:public CodeEmitter{
 private:
-	Instruction* leader;
+	Instruction *leader;
 	set<BasicBlock*> preds, succs;
 	BasicBlock *succ_next, *succ_branch;
+  bool emitted;
 public:
-	BasicBlock(){
-		leader = NULL;
-		succ_next = succ_branch = NULL;
-	}
-	BasicBlock(Instruction* _leader):leader(_leader){
+	BasicBlock(Instruction* _leader=NULL):leader(_leader){
 		assert(leader!=NULL);
+    emitted = false;
 		succ_next = succ_branch = NULL;
 	}
 	int getId(){
@@ -41,26 +44,55 @@ public:
 		succ_branch = block;
 		succs.insert(block);
 	}
+  void emitCFG(){
+    printf("Leader:\n");
+    leader->emit();cout<<endl;
+    // Instruction* itr = leader;
+    // while(itr){
+    //  itr->emit();
+    //  cout<<endl;
+    //  itr = itr->next;
+    // }
+    printf("Succ:\n");
+    if(succ_next){
+      succ_next->leader->emit();cout<<endl;
+    }
+    if(succ_branch){
+      succ_branch->leader->emit();cout<<endl;
+    }
+    printf("Pred:\n");
+    for(auto i:preds){
+      i->leader->emit();
+      cout<<endl;
+    }
+  }
+  int schedule(int id) override{
+    if(leader->id != -1) // already scheduled!
+      return id;
+    for(auto i = leader; i != NULL; i = i->next){
+      id = i->schedule(id);
+    }
+    if(succ_next){
+      assert(succ_next->leader->id == -1);
+      id = succ_next->schedule(id);
+    }
+    if(succ_branch){
+      id = succ_branch->schedule(id);
+    }
+    return id;
+  }
 	void emit() override{
-		printf("Leader:\n");
-		leader->emit();cout<<endl;
-		// Instruction* itr = leader;
-		// while(itr){
-		// 	itr->emit();
-		// 	cout<<endl;
-		// 	itr = itr->next;
-		// }
-		printf("Succ:\n");
-		if(succ_next){
-			succ_next->leader->emit();cout<<endl;
-		}
-		if(succ_branch){
-			succ_branch->leader->emit();cout<<endl;
-		}
-		printf("Pred:\n");
-		for(auto i:preds){
-			i->leader->emit();
-			cout<<endl;
-		}
+    if(emitted)
+      return;
+    emitted = true;
+    for(auto i = leader; i != NULL; i = i->next){
+      i->emit();
+    }
+    if(succ_next){
+      assert(succ_next->emitted == false);
+      succ_next->emit();
+    }
+    if(succ_branch)
+      succ_branch->emit();
 	}
 };

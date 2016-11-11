@@ -1,4 +1,7 @@
 #pragma once
+
+#include <string>
+
 #include "instruction.h"
 #include "register.h"
 #include "constant.h"
@@ -8,9 +11,10 @@ class Program:public CodeEmitter{
 public:
   string fname;
   FILE* file;
-  InstructionFactory *ifactory;
-  RegisterFactory *rfactory;
-  ConstantFactory *cfactory;
+  map<int, Instruction*> inst_map;
+  map<int, Register*> reg_map;
+  map<string, Register*> var_map;
+  Constant *FP, *GP;
   map<Instruction*, Function> functions;
   Program(const string _fname):fname(_fname){
     // File
@@ -19,9 +23,6 @@ public:
       printf("Unable to open: %s\n", fname.c_str());
       return;
     }
-    ifactory = InstructionFactory::_();
-    rfactory = RegisterFactory::_();
-    cfactory = ConstantFactory::_();
     // Parsing Instructions
     parseInst();
     // Creating Functions
@@ -37,27 +38,38 @@ public:
     if(op[0]=='['){
       op[strlen(op)-1]='\0';
       i = atoi(op+1);
-      val.init(ifactory->getInst(i));
+
+      if(inst_map[i] == NULL){
+        inst_map[i] = Instruction::alloc();
+        reg_map[i] = inst_map[i]->out;
+      }
+
+      val.init(inst_map[i]);
     }
     else if(op[0]=='('){
       op[strlen(op)-1]='\0';
       i = atoi(op+1);
-      val.init(rfactory->getReg(i));
+      if(reg_map[i] == NULL)
+        reg_map[i] = Register::alloc();
+      val.init(reg_map[i]);
     }
     else if(op[0]=='G')
-      val.init(cfactory->getGP());
+      val.init(GP);
     else if(op[0]=='F')
-      val.init(cfactory->getFP());
+      val.init(FP);
     else{
       i=0,j=0;
       while((op[j]<'0' || op[j]>'9') && op[j]!='-')j++;
       i = atoi(op+j);
       if(j==0 || strstr(op, "_base")!=NULL || strstr(op, "_offset")!=NULL){
-        val.init(cfactory->getCons(i));
+        val.init(Constant::alloc(i));
       }
       else{
         op[j-1]=0;
-        val.init(rfactory->getVar(op));
+        string name(op);
+        if(var_map[name] == NULL)
+          var_map[name] = Register::allocVar(name.c_str());
+        val.init(var_map[name]);
       }
     }
   }
@@ -66,20 +78,22 @@ public:
     int id;
     Instruction *prev=NULL, *curr=NULL;
     bool is_main=false;
-    while(fscanf(file, " instr %d: %s ", &id, opcode)!=EOF){
-      curr = ifactory->getInst(id);
-      curr->id = id;
+    while(fscanf(file, " instr %d: %s ", &id, opcode) != EOF){
+      curr = inst_map[id];
+      if(curr == NULL){
+        curr = Instruction::alloc();
+        reg_map[id] = curr->out;
+        inst_map[id] = curr;
+      }
       parse(opcode, curr);
-      if(curr->type==Instruction::ientrypc){
+      if(curr->type == Instruction::ientrypc){
         is_main = true;
         prev = NULL;
-      }
-      else if(curr->type==Instruction::ienter){
+      }else if(curr->type == Instruction::ienter){
         functions[curr] = Function(curr, is_main);
         is_main=false;
         prev = curr;
-      }
-      else{
+      }else{
         if(prev!=NULL)
           prev->next = curr;
         prev = curr;
@@ -205,10 +219,14 @@ public:
       inst->type = Instruction::inop;
     }
   }
-  void emit()override{
+  void emitCFG(){
+    for(auto p:functions){
+      p.second.emitCFG();
+    }
+  }
+  void emit(){
     for(auto p:functions){
       p.second.emit();
-      cout<<endl;
     }
   }
 };

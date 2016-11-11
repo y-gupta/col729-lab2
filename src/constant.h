@@ -1,66 +1,39 @@
 #pragma once
 
 #include <vector>
-#include <map>
 #include <cassert>
 #include <cstdio>
 
 #include "emitter.h"
 
 class Constant : public CodeEmitter{
+  static vector<Constant*> store;
 public:
   enum{
     typeLong, typeGP, typeFP
   };
-  int type, id;
-  Constant(int _id=0, int _type=typeLong):id(_id),type(_type){
+  int type, val;
+  Constant(int _val=0, int _type=typeLong):val(_val),type(_type){
   }
   void emit() override{
     switch(type){
-      case typeLong:  printf(" %d",id); break;
+      case typeLong:  printf(" %d",val); break;
       case typeGP:    printf(" GP"); break;
       case typeFP:    printf(" LP"); break;
-      default: printf(" unknown constant");
+      default: printf(" unknown_constant");
     }
+  }
+  static Constant* alloc(int val=0,int type=typeLong){
+    auto cons = new Constant(val, type);
+    store.push_back(cons);
+    return cons;
+  }
+  static void free(){
+    for(auto cons: store){
+      delete cons;
+    }
+    store.clear();
   }
 };
 
-class ConstantFactory{
-private:
-  static ConstantFactory* factory;
-
-  std::map<int, Constant> constants;
-  Constant gp;
-  Constant fp;
-
-  ConstantFactory():fp(0, Constant::typeFP), gp(0, Constant::typeGP){
-    assert(factory == NULL);
-  }
-public:
-  static ConstantFactory* _(){
-    if(factory==NULL)
-      factory = new ConstantFactory();
-    return factory;
-  }
-  Constant* getCons(const int id){
-    if(constants.find(id)==constants.end())
-      constants[id] = Constant(id);
-    return &constants[id];
-  }
-  Constant* getFP(){
-    return &fp;
-  }
-  Constant* getGP(){
-    return &gp;
-  }
-  int size(){
-    return constants.size();
-  }
-  void print(){
-    for(auto& p:constants){
-      p.second.emit();
-      printf("\n");
-    }
-  }
-};
-ConstantFactory* ConstantFactory::factory=NULL;
+vector<Constant*> Constant::store = vector<Constant*>();

@@ -81,12 +81,12 @@ public:
 		}
 		createCFG();
 	}
+  void emitCFG(){
+    printf("Function: %d\n", leader->id);
+    cfg.print();
+    printf("\n");
+  }
 	void emit() override{
-		printf("Function: %d\n", leader->id);
-		cfg.print();
-		// for(auto& p:blocks){
-		// 	p.second->emit();
-		// 	cout<<endl;
-		// }
+    getBlock(leader)->emit();
 	}
 };
