@@ -89,4 +89,7 @@ public:
 	void emit() override{
     getBlock(leader)->emit();
 	}
+  int schedule(int id) override{
+    return getBlock(leader)->schedule(id);
+  }
 };
