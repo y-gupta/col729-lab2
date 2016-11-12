@@ -225,9 +225,15 @@ public:
       p.second.emitCFG();
     }
   }
-  void emit(){
+  void emit() override{
     for(auto p:functions){
       p.second.emit();
     }
+  }
+  int schedule(int id) override{
+    for(auto p:functions){
+      id = p.second.schedule(id);
+    }
+    return id;
   }
 };
