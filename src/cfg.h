@@ -140,7 +140,5 @@ public:
     print(idoms);
     printf("\nDF:\n");
     print(df);
-    printf("\nIterated DF:\n");
-    print(idf({*(next(blocks.begin()))}));
   }
 };

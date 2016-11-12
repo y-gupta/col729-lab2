@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-
+#include <cstdio>
 #include "instruction.h"
 #include "register.h"
 #include "constant.h"
@@ -16,13 +16,14 @@ public:
   map<string, Register*> var_map;
   Constant *FP, *GP;
   map<Instruction*, Function> functions;
-  Program(const string _fname):fname(_fname){
+  Program(const string _fname=""):fname(_fname){
     // File
-    file = fopen(fname.c_str(), "r");
-    if(!file){
-      printf("Unable to open: %s\n", fname.c_str());
-      return;
-    }
+    file = stdin;
+    // file = fopen(fname.c_str(), "r");
+    // if(!file){
+    //   printf("Unable to open: %s\n", fname.c_str());
+    //   return;
+    // }
     FP = Constant::alloc(0,Constant::typeFP);
     GP = Constant::alloc(0,Constant::typeGP);
     // Parsing Instructions
