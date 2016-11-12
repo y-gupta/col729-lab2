@@ -1,9 +1,13 @@
 TARGET = opt
-LDFLAGS = 
+IF = hanoi.3addr
+LDFLAGS =
 CXX = g++
 CXXFLAGS = -std=c++11 -g -Isrc
 
-all: dirs $(TARGET)
+all: dirs $(TARGET) run
+
+run: $(TARGET) $(IF)
+	./$(TARGET) < $(IF)
 
 csc:
 	cd csc_src && make
@@ -31,4 +35,4 @@ build/%.o: src/%.cpp
 clean:
 	rm -rf build/* csc $(TARGET)
 
-.PHONY: dirs clean
+.PHONY: dirs clean csc
