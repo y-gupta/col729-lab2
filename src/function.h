@@ -99,7 +99,23 @@ public:
       assert(entrypc);
       entrypc->emit();
     }
-    getBlock(leader)->emit();
+    std::deque<BasicBlock*> list;
+    list.push_back(getBlock(leader));
+
+    while(!list.empty()){
+      auto b = list.back();
+      list.pop_back();
+      if(b->emitted)
+        continue;
+      b->emit();
+      if(b->succ_next){
+        assert(!b->succ_next->emitted);
+        list.push_back(b->succ_next);
+      }
+      if(b->succ_branch){
+        list.push_front(b->succ_branch);
+      }
+    }
 	}
   int schedule(int id) override{
     assert(leader->id == -1);
@@ -121,15 +137,15 @@ public:
         continue;
       id = b->schedule(id);
       if(b->succ_next){
-        printf("succ_next(%d):",b->leader->id);
-        b->succ_next->leader->emit();
+        // printf("succ_next(%d):",b->leader->id);
+        // b->succ_next->leader->emit();
 
         assert(!b->succ_next->scheduled());
         list.push_back(b->succ_next);
       }
       if(b->succ_branch){
-        printf("succ_branch(%d):",b->leader->id);
-        b->succ_branch->leader->emit();
+        // printf("succ_branch(%d):",b->leader->id);
+        // b->succ_branch->leader->emit();
 
         list.push_front(b->succ_branch);
       }

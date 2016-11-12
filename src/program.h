@@ -68,7 +68,7 @@ public:
         val.init(Constant::alloc(i));
       }
       else{
-        op[j-1]=0;
+        // op[j-1]=0;
         string name(op);
         if(var_map[name] == NULL)
           var_map[name] = Register::allocVar(name.c_str());

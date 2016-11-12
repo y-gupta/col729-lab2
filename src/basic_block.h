@@ -11,8 +11,8 @@ using namespace std;
 class BasicBlock:public CodeEmitter{
 private:
 	set<BasicBlock*> preds, succs;
-  bool emitted;
 public:
+  bool emitted;
   Instruction *leader;
   BasicBlock *succ_next, *succ_branch;
 	BasicBlock(Instruction* _leader=NULL):leader(_leader){
@@ -71,7 +71,6 @@ public:
       return id;
     for(auto i = leader; i != NULL; i = i->next){
       id = i->schedule(id);
-      i->emit();
     }
     return id;
   }
@@ -85,11 +84,5 @@ public:
     for(auto i = leader; i != NULL; i = i->next){
       i->emit();
     }
-    if(succ_next){
-      assert(succ_next->emitted == false);
-      succ_next->emit();
-    }
-    // if(succ_branch)
-    //   succ_branch->emit();
 	}
 };
