@@ -1,7 +1,7 @@
 TARGET = opt
 LDFLAGS = 
-CPP = g++
-CPPFLAGS = -std=c++11 -g -Isrc
+CXX = g++
+CXXFLAGS = -std=c++11 -g -Isrc
 
 all: dirs $(TARGET)
 
@@ -17,16 +17,16 @@ dirs:
 	@mkdir -p build
 
 $(TARGET): $(obj)
-	$(CPP) -o $(TARGET) $^ $(LDFLAGS)
+	$(CXX) -o $(TARGET) $^ $(LDFLAGS)
 
 
 build/%.dep: src/%.cpp
-	$(CPP) $(CPPFLAGS) $< -MM -MT $(@:.dep=.o) >$@
+	$(CXX) $(CXXFLAGS) $< -MM -MT $(@:.dep=.o) >$@
 
 -include $(dep)
 
 build/%.o: src/%.cpp
-	$(CPP) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -rf build/* csc $(TARGET)
