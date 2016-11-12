@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-  Program program("out.3addr");
+  Program program;
   // program.emitCFG();
   cout << "Final id:" <<program.schedule(1)<<endl;
   program.emit();

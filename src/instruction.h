@@ -47,6 +47,9 @@ public:
     out->id = _id;
     return _id+1;
   }
+  void omit(){
+    type = inop;
+  }
   void emit() override{
     printf("    inst %d:",id);
     switch(type){
