@@ -223,17 +223,17 @@ public:
     }
   }
   void emitCFG(){
-    for(auto p:functions){
+    for(auto &p:functions){
       p.second.emitCFG();
     }
   }
   void emit() override{
-    for(auto p:functions){
+    for(auto &p:functions){
       p.second.emit();
     }
   }
   int schedule(int id) override{
-    for(auto p:functions){
+    for(auto &p:functions){
       id = p.second.schedule(id);
     }
     return id;
