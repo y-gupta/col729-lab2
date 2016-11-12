@@ -23,6 +23,8 @@ public:
       printf("Unable to open: %s\n", fname.c_str());
       return;
     }
+    FP = Constant::alloc(0,Constant::typeFP);
+    GP = Constant::alloc(0,Constant::typeGP);
     // Parsing Instructions
     parseInst();
     // Creating Functions
@@ -85,7 +87,6 @@ public:
         reg_map[id] = curr->out;
         inst_map[id] = curr;
       }
-      curr->id = id;    // Debug purposes (CFG)
       parse(opcode, curr);
       if(curr->type == Instruction::ientrypc){
         is_main = true;

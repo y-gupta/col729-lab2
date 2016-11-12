@@ -6,8 +6,8 @@ using namespace std;
 class CodeEmitter{
 public:
   string meta;
-  virtual int schedule(int id){
-    return id;
+  virtual int schedule(int _id){
+    return _id;
   };
   virtual void emit() = 0;
 };

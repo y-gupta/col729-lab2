@@ -48,6 +48,7 @@ public:
     return _id+1;
   }
   void emit() override{
+    printf("    inst %d:",id);
     switch(type){
       case iadd: printf(" add"); op1.emit(); op2.emit(); break;
       case isub: printf(" sub"); op1.emit(); op2.emit(); break;
@@ -63,11 +64,11 @@ public:
       case iret: printf(" ret"); op1.emit(); break;
       case iend: printf(" end"); break;
 
-      case icall: printf(" call"); op1.emit(); break;
-      case ibr: printf(" br"); op1.emit(); break;
+      case icall: printf(" call"); op1.inst->emitAddr(); break;
+      case ibr: printf(" br"); op1.inst->emitAddr(); break;
 
-      case iblbc: printf(" blbc"); op1.emit(); op2.emit(); break;
-      case iblbs: printf(" blbs"); op1.emit(); op2.emit(); break;
+      case iblbc: printf(" blbc"); op1.emit(); op2.inst->emitAddr(); break;
+      case iblbs: printf(" blbs"); op1.emit(); op2.inst->emitAddr(); break;
 
       case icmpeq: printf(" cmpeq"); op1.emit(); op2.emit(); break;
       case icmple: printf(" cmple"); op1.emit(); op2.emit(); break;
@@ -84,7 +85,9 @@ public:
       case inop: printf(" nop"); break;
       default: printf(" unknown_instruction");
     }
-    printf(" ;%s\n", meta.c_str());
+    if(meta.size())
+      printf(" ;%s", meta.c_str());
+    printf("\n");
   }
 };
 

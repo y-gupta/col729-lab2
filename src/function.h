@@ -1,16 +1,19 @@
 #pragma once
 #include "basic_block.h"
 #include "cfg.h"
+
 #include <map>
+#include <deque>
+
 using namespace std;
 
 class Function: public CodeEmitter{
 public:
-	Instruction* leader;
+	Instruction *leader, *entrypc;
 	map<Instruction*, BasicBlock*> blocks;
 	bool is_main;
 	CFG cfg;
-	Function(Instruction* _leader=NULL, bool _is_main=false):leader(_leader), is_main(_is_main){
+	Function(Instruction* _leader=NULL, bool _is_main=false):leader(_leader), is_main(_is_main),entrypc(0){
 	}
 	void init(){
 		createBlocks();
@@ -57,22 +60,27 @@ public:
 				case Instruction::iblbc:
 				case Instruction::iblbs:
 					tmp = getBlock(inst->next);
-					block->addSuccNext(tmp), tmp->addPred(block);
+					block->addSuccNext(tmp);
+          tmp->addPred(block);
 					tmp =	getBlock(inst->op2.inst);
-					block->addSuccBranch(tmp), tmp->addPred(block);
+					block->addSuccBranch(tmp);
+          tmp->addPred(block);
 					break;
 				case Instruction::ibr:
 					tmp =	getBlock(inst->op1.inst);
-					block->addSuccBranch(tmp), tmp->addPred(block);
+					block->addSuccBranch(tmp);
+          tmp->addPred(block);
 					break;
 				case Instruction::icall:
 					tmp = getBlock(inst->next);
-					block->addSuccNext(tmp), tmp->addPred(block);
+					block->addSuccNext(tmp);
+          tmp->addPred(block);
 					break;
 				default:
 					if(blocks.find(inst->next)!=blocks.end()){
 						tmp = getBlock(inst->next);
-						block->addSuccNext(tmp), tmp->addPred(block);
+						block->addSuccNext(tmp);
+            tmp->addPred(block);
 					}
 					break;
 			}
@@ -87,9 +95,45 @@ public:
     printf("\n");
   }
 	void emit() override{
+    if(is_main){
+      assert(entrypc);
+      entrypc->emit();
+    }
     getBlock(leader)->emit();
 	}
   int schedule(int id) override{
-    return getBlock(leader)->schedule(id);
+    assert(leader->id == -1);
+
+    if(is_main) //allocate one place for entrypc
+    {
+      entrypc = Instruction::alloc();
+      entrypc->type = Instruction::ientrypc;
+      id = entrypc->schedule(id);
+    }
+
+    std::deque<BasicBlock*> list;
+    list.push_back(getBlock(leader));
+
+    while(!list.empty()){
+      auto b = list.back();
+      list.pop_back();
+      if(b->scheduled())
+        continue;
+      id = b->schedule(id);
+      if(b->succ_next){
+        printf("succ_next(%d):",b->leader->id);
+        b->succ_next->leader->emit();
+
+        assert(!b->succ_next->scheduled());
+        list.push_back(b->succ_next);
+      }
+      if(b->succ_branch){
+        printf("succ_branch(%d):",b->leader->id);
+        b->succ_branch->leader->emit();
+
+        list.push_front(b->succ_branch);
+      }
+    }
+    return id;
   }
 };

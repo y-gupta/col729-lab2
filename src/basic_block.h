@@ -10,11 +10,11 @@ using namespace std;
 
 class BasicBlock:public CodeEmitter{
 private:
-	Instruction *leader;
 	set<BasicBlock*> preds, succs;
-	BasicBlock *succ_next, *succ_branch;
   bool emitted;
 public:
+  Instruction *leader;
+  BasicBlock *succ_next, *succ_branch;
 	BasicBlock(Instruction* _leader=NULL):leader(_leader){
 		assert(leader!=NULL);
     emitted = false;
@@ -71,15 +71,12 @@ public:
       return id;
     for(auto i = leader; i != NULL; i = i->next){
       id = i->schedule(id);
-    }
-    if(succ_next){
-      assert(succ_next->leader->id == -1);
-      id = succ_next->schedule(id);
-    }
-    if(succ_branch){
-      id = succ_branch->schedule(id);
+      i->emit();
     }
     return id;
+  }
+  bool scheduled(){
+    return leader->id != -1;
   }
 	void emit() override{
     if(emitted)
@@ -92,7 +89,7 @@ public:
       assert(succ_next->emitted == false);
       succ_next->emit();
     }
-    if(succ_branch)
-      succ_branch->emit();
+    // if(succ_branch)
+    //   succ_branch->emit();
 	}
 };

@@ -20,7 +20,7 @@ public:
   }
   void emit() override{
     if(is_var)
-      printf(" (%s)", name);
+      printf(" %s", name);
     else
       printf(" (%d)", id);
   }
