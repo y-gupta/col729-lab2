@@ -7,9 +7,9 @@
 #include "emitter.h"
 
 class Register:public CodeEmitter{
-  char name[64];
   static vector<Register*> store;
 public:
+  char name[64];
   int id;
   bool is_var;
   Register(bool _is_var=false,const char* _name="reg"){

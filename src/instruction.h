@@ -88,6 +88,7 @@ public:
       case inop: printf(" nop"); break;
       default: printf(" unknown_instruction");
     }
+    calcMeta();
     if(meta.size())
       printf(" ;%s", meta.c_str());
     printf("\n");

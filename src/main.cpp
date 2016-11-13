@@ -3,6 +3,10 @@
 #include <map>
 
 #include "program.h"
+#include "reaching_defs.h"
+#include "ssa.h"
+#include "copy_propagation.h"
+#include "cons_propagation.h"
 
 using namespace std;
 
@@ -27,18 +31,24 @@ int main(int argc, char **argv){
     cerr<<endl;
   }
   if(opts["help"] == "true"){
-    cout<<"Usage: ./opt out=(3addr|cfg) opt=(none|reach|copy|const) [help] [debug] < input_file.3addr"<<endl;
+    cout<<"Usage: ./opt out=(3addr|cfg) opt=(none|reach|copy|ssa|const) [help] [debug] < input_file.3addr"<<endl;
     return 0;
   }
   Program program;
 
-  if(opts["opt"].find("reac")==0)
-  {}
-  else if(opts["opt"].find("copy")==0)
-  {}
-  else if(opts["opt"].find("cons")==0)
-  {}
-  else if(opts["opt"].find("none")!=0)
+  if(opts["opt"].find("reac")==0){
+    ReachingDefs rd(&program);
+    rd.run(true);
+  }else if(opts["opt"].find("copy")==0){
+    CopyPropagation cp(&program);
+    cp.run(true);
+  }else if(opts["opt"].find("ssa")==0){
+    SSA ssa(&program);
+    ssa.run(true);
+  }else if(opts["opt"].find("cons")==0){
+    ConsPropagation cp(&program);
+    cp.run(true);
+  }else if(opts["opt"].find("none")!=0)
     cerr<<"Unsupported optimization/analysis: "<<opts["opt"]<<endl;
 
   program.schedule(1);

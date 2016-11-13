@@ -28,14 +28,14 @@ public:
     for(auto& b:blocks)
       if(b!=root)
         doms[b] = blocks;
-    bool changed=true; 
+    bool changed=true;
     while(changed){
       changed = false;
       for(auto& b:blocks){
         if(b==root)continue;
         auto tmp = blocks;
         for(auto& p:b->getPred())
-          tmp = set_intersection(tmp, doms[p]);
+          tmp = util::set_intersection(tmp, doms[p]);
         tmp.insert(b);
         if(tmp!=doms[b])
           changed=true, doms[b]=tmp;
@@ -87,9 +87,9 @@ public:
       auto inv_idom = inv_idoms[block];
       set<BasicBlock*> res={};
       for(auto b:inv_dom){
-        res = set_union(res, b->getSucc());
+        res = util::set_union(res, b->getSucc());
       }
-      res = set_difference(res, inv_idom);
+      res = util::set_difference(res, inv_idom);
       df[block] = res;
     }
   }
