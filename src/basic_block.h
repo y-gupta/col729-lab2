@@ -9,9 +9,8 @@
 using namespace std;
 
 class BasicBlock:public CodeEmitter{
-private:
-	set<BasicBlock*> preds, succs;
 public:
+  set<BasicBlock*> preds, succs;
   bool emitted;
   Instruction *leader;
   BasicBlock *succ_next, *succ_branch;
