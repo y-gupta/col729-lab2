@@ -94,17 +94,15 @@ public:
     }
   }
   set<BasicBlock*> idf(set<BasicBlock*> s){
-    auto worklist = s;
-    auto idf = s;
-    while(!s.empty()){
-      for(auto b:df[*(s.begin())]){
-        if(idf.find(b)==idf.end()){
-          idf.insert(b);
-          worklist.insert(b);
-        }
-      }
-      s.erase(s.begin());
-    }
+    set<BasicBlock*> idf={};
+    set<BasicBlock*> idf_old={};
+    for(auto b:s) idf = set_union(idf, df[b]);
+    do{
+      idf_old = idf;
+      s = set_union(s, idf);
+      idf = {};
+      for(auto b:s) idf = set_union(idf, df[b]);
+    }while(idf!=idf_old);
     return idf;
   }
   void print(map<BasicBlock*, set<BasicBlock*> > m){

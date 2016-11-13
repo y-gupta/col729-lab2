@@ -24,6 +24,10 @@ public:
     else
       printf(" (%d)", id);
   }
+  void convert(int i){
+    string s = string(name) + "$" + to_string(i);
+    strncpy(name, s.c_str(), 63);
+  }
   static Register* alloc(){
     auto reg = new Register(false);
     store.push_back(reg);
@@ -39,6 +43,9 @@ public:
       delete reg;
     }
     store.clear();
+  }
+  string getName(){
+    return string(name);
   }
 };
 vector<Register*> Register::store = vector<Register*>();
