@@ -15,17 +15,23 @@ long res;
 void copy()
 {
   long a,b,c,d,e,f;
+  long x;
   a = 2;
   b = a;
+  d = b;
+  x = 1;
   if(b == 2){
     c = a;
   }else{
-    c = b;
+    c = a;
+    d = b;
   }
+  x = 2;
   if(c == a){
     a = 3;
     d = a;
   }else{
+    x = 3;
     if(b == 3){
       e = a + b;
     }else{
@@ -33,6 +39,7 @@ void copy()
     }
     d = e;
   }
+  x = 4;
   f = d;
   while(f<10){
     e = f;

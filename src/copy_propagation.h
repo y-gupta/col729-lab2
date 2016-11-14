@@ -44,14 +44,15 @@ public:
 
       if(!i->op2.reg->is_var)
         continue;
-       for(auto it = copies.begin(); it != copies.end();){
+
+      for(auto it = copies.begin(); it != copies.end();){
         if(it->first == i->op2.reg || it->second == i->op2.reg)
           it = copies.erase(it);
         else
           ++it;
       }
 
-      if(!i->op1.reg->is_var)
+     if(i->op1.getType() != Value::typeReg || !i->op1.reg->is_var)
         continue;
       copies.emplace(i->op2.reg, i->op1.reg);
     }
@@ -65,8 +66,12 @@ public:
       }
       auto &my_copy_in = copy_in[bb];
       size_t prev_sz = my_copy_in.size();
+      bool initial = true;
       for(auto parent: bb->preds){
-        my_copy_in = util::set_intersection(my_copy_in,copy_out[parent]);
+        if(initial)
+          my_copy_in = copy_out[parent];
+        else
+          my_copy_in = util::set_intersection(my_copy_in,copy_out[parent]);
       }
 
       if(prev_sz != my_copy_in.size())
@@ -86,7 +91,7 @@ public:
         my_copy_out.insert(reg_inst);
       }
     }
-    if(changed)
+    if(changed || first)
       processFunction(fn,false);
   }
   void calcGenKill(BasicBlock *bb){
@@ -109,7 +114,7 @@ public:
           ++it;
       }
 
-      if(!i->op1.reg->is_var)
+      if(i->op1.getType() != Value::typeReg || !i->op1.reg->is_var)
         continue;
       my_gen.emplace(i->op2.reg, i->op1.reg);
     }
