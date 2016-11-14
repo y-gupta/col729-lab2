@@ -1,2 +1,2 @@
 make
-./opt < out.3addr
+./opt opt=ssa < ssa.3addr

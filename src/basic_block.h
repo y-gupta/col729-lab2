@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <set>
+#include <vector>
 
 #include "emitter.h"
 #include "instruction.h"

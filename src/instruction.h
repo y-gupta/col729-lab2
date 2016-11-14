@@ -15,7 +15,7 @@ public:
   enum{
     ineg, iadd, isub, imul, idiv, imod, iparam, ienter, ileave, iend, iload,
     istore, imove, icmpeq, icmplt, icmple, iblbs, iblbc, icall, ibr, iret,
-    iread, iwrite, iwrl, inop, ientrypc
+    iread, iwrite, iwrl, inop, ientrypc, iphi
   };
   int type, id;
   Register *out;  //virtual output register
@@ -86,6 +86,7 @@ public:
       case imove: printf(" move"); op1.emit(); op2.emit(); break;
 
       case inop: printf(" nop"); break;
+      case iphi: printf(" phi"); op1.emit(); op2.emit(); break;
       default: printf(" unknown_instruction");
     }
     calcMeta();

@@ -49,15 +49,14 @@ public:
       tmp[u].erase(u);
     }
     for(auto& n:blocks){
+      set<BasicBlock*> s;
       for(auto it_s = tmp[n].begin();it_s!=tmp[n].end();it_s++){
-        for(auto it_t = tmp[n].begin(); it_t!=tmp[n].end();){
+        for(auto it_t = tmp[n].begin(); it_t!=tmp[n].end();it_t++){
           if(tmp[*it_s].find(*it_t)!=tmp[*it_s].end())
-            tmp[n].erase(it_t++);
-          else{
-            ++it_t;
-          }
+            s.insert(*it_t);
         }
       }
+      tmp[n] = util::set_difference(tmp[n], s);
     }
     for(auto& u:blocks){
       if(u==root)
@@ -104,6 +103,9 @@ public:
       idf = {};
       for(auto b:s) idf = util::set_union(idf, df[b]);
     }while(idf!=idf_old);
+
+    // printf("IDF:\n");
+    // print(idf);
     return idf;
   }
   void print(map<BasicBlock*, set<BasicBlock*> > m){
@@ -122,6 +124,7 @@ public:
   void print(set<BasicBlock*> s){
     for(auto b:s){
       printf("%d ", b->getId());
+      // b->leader->emit();
     }
   }
   void print(){

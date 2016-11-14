@@ -25,6 +25,9 @@ public:
       printf(" (%d)", id);
   }
   void convert(int i){
+    int j=0;
+    while(j<strlen(name) && name[j]!='#')j++;
+    if(j<strlen(name))name[j]=0;
     string s = string(name) + "$" + to_string(i);
     strncpy(name, s.c_str(), 63);
   }
