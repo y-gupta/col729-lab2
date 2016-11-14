@@ -12,7 +12,42 @@ long a, m, q, r;
 long count;
 long res;
 
-
+void copy()
+{
+  long a,b,c,d,e,f;
+  long x;
+  a = 2;
+  b = a;
+  d = b;
+  x = 1;
+  if(b == 2){
+    c = a;
+  }else{
+    c = a;
+    d = b;
+  }
+  x = 2;
+  if(c == a){
+    a = 3;
+    d = a;
+  }else{
+    x = 3;
+    if(b == 3){
+      e = a + b;
+    }else{
+      e = b + c;
+    }
+    d = e;
+  }
+  x = 4;
+  f = d;
+  while(f<10){
+    e = f;
+    d = e;
+    f = d + a;
+    b = c + f;
+  }
+}
 void Factorial(long n)
 {
   if (n == 0) {

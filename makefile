@@ -1,5 +1,5 @@
 TARGET = opt
-IF = hanoi.3addr
+IF = out.3addr
 LDFLAGS =
 CXX = g++
 CXXFLAGS = -std=c++11 -g -Isrc

@@ -109,8 +109,8 @@ public:
         continue;
       b->emit();
       if(b->succ_next){
-        assert(!b->succ_next->emitted);
-        list.push_back(b->succ_next);
+        if(!b->succ_next->emitted)
+          list.push_back(b->succ_next);
       }
       if(b->succ_branch){
         list.push_front(b->succ_branch);
@@ -140,8 +140,19 @@ public:
         // printf("succ_next(%d):",b->leader->id);
         // b->succ_next->leader->emit();
 
-        assert(!b->succ_next->scheduled());
-        list.push_back(b->succ_next);
+        if(b->succ_next->scheduled()){
+          // Add branch to already scheduled fall through code.
+          auto br = Instruction::alloc();
+          br->type = Instruction::ibr;
+          br->op1.init(b->succ_next->leader);
+          auto i=b->leader;
+          while(i->next != NULL)
+            i = i->next;
+          i->next = br;
+          id = br->schedule(id);
+        }else{
+          list.push_back(b->succ_next);
+        }
       }
       if(b->succ_branch){
         // printf("succ_branch(%d):",b->leader->id);
