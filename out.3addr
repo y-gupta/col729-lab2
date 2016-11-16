@@ -1,0 +1,33 @@
+    instr 1: nop
+    instr 2: entrypc
+    instr 3: enter 4
+    instr 4: move 0 i#-4
+    instr 5: cmplt i#-4 20
+    instr 6: blbc (5) [32]
+    instr 7: cmpeq 1 1
+    instr 8: blbc (7) [19]
+    instr 9: add i#-4 30
+    instr 10: move (9) i#-4
+    instr 11: cmpeq 1 1
+    instr 12: blbc (11) [19]
+    instr 13: add i#-4 20
+    instr 14: move (13) i#-4
+    instr 15: cmpeq 1 1
+    instr 16: blbc (15) [19]
+    instr 17: add i#-4 10
+    instr 18: move (17) i#-4
+    instr 19: cmplt i#-4 10
+    instr 20: blbc (19) [29]
+    instr 21: cmplt i#-4 5
+    instr 22: blbc (21) [26]
+    instr 23: add i#-4 1
+    instr 24: move (23) i#-4
+    instr 25: br [21]
+    instr 26: add i#-4 2
+    instr 27: move (26) i#-4
+    instr 28: br [19]
+    instr 29: add i#-4 3
+    instr 30: move (29) i#-4
+    instr 31: br [5]
+    instr 32: ret 0
+    instr 33: nop
