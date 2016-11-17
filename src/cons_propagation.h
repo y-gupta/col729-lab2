@@ -2,6 +2,7 @@
 
 #include <map>
 #include <set>
+#include <iterator>
 
 #include "program.h"
 #include "ssa.h"
@@ -55,7 +56,7 @@ public:
       processFunction(&(inst_fn.second));
     }
   };
-
+  typedef pair<Instruction*, Instruction*> Edge;
   Instruction *entry;
   map<Instruction*, vector<Instruction*> > edges;
   map<pair<Instruction*,Instruction*>, bool> edge_label;
@@ -64,6 +65,7 @@ public:
   map<Instruction*, Lattice> lattice_cell;
   set<pair<Instruction*,Instruction*>> executable_edges;
   vector<pair<Instruction*, Instruction*> > SSA_WL, flow_WL;
+  map<Instruction*, pair<Edge, Edge> > phi_edges;
 
   int edgeCount(Instruction* inst){
     int cnt=0;
@@ -113,13 +115,42 @@ public:
       populateEdges(bb2);
     }
   }
+  void setPhiEdges(BasicBlock *bb, Instruction *i, Instruction *prev_i){
+    if(i->phi_parent1 == -1)
+      phi_edges[i].first = make_pair(prev_i, i);
+    else{
+      auto it=bb->preds.begin();
+      assert(bb->preds.size() <= i->phi_parent1);
+      std::advance(it, i->phi_parent1);
+      auto i2 = (*it)->leader;
+      while(i2->next != NULL)
+        i2=i2->next;
+      phi_edges[i].first = make_pair(i2, bb->leader);
+    }
+    if(i->phi_parent2 == -1){
+      phi_edges[i].second = make_pair(prev_i, i);
+    }else{
+      auto it=bb->preds.begin();
+      assert(bb->preds.size() <= i->phi_parent2);
+      std::advance(it, i->phi_parent2);
+      auto i2 = (*it)->leader;
+      while(i2->next != NULL)
+        i2=i2->next;
+      phi_edges[i].second = make_pair(i2, bb->leader);
+    }
+  }
   void populateUses(BasicBlock *bb){
     if(block_flags.find(bb) != block_flags.end())
       return;
     block_flags.insert(bb);
     auto i = bb->leader;
+    Instruction* prev_inst = NULL;
     for(; i != NULL;i = i->next){
       populateUse(i);
+      if(i->type == Instruction::iphi){
+        setPhiEdges(bb,i,prev_inst);
+      }
+      prev_inst = i;
     }
     for(auto bb2: bb->succs){
       populateUses(bb2);
@@ -233,7 +264,12 @@ public:
     }
   }
   void visitPhi(Instruction *inst){
-    auto val = lattice_cell[var_def.at(inst->op1)] & lattice_cell[var_def.at(inst->op2)];
+    Lattice l1,l2;
+    if(executable_edges.find(phi_edges[inst].first) != executable_edges.end())
+      l1 = lattice_cell[var_def.at(inst->op1)];
+    if(executable_edges.find(phi_edges[inst].second) != executable_edges.end())
+      l2 = lattice_cell[var_def.at(inst->op2)];
+    auto val =  l1 & l2;
     if(val != lattice_cell[inst])
     {
       lattice_cell[inst] = val;
