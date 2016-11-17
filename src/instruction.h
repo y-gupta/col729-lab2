@@ -20,12 +20,14 @@ public:
   int type, id;
   Register *out;  //virtual output register
   Value op1,op2;
+  int phi_parent1,phi_parent2; // index of the parent of this phi in predecessors list
   Instruction *next;
 
   Instruction(){
     id = -1;
     next = NULL;
     type = inop;
+    phi_parent2 = phi_parent1 = -1;
     out = Register::alloc();
   }
   static Instruction* alloc(){
@@ -49,6 +51,20 @@ public:
   }
   void omit(){
     type = inop;
+  }
+  bool hasLHS() const{
+    if(type <= imod || type == iread || type==iload || type == iphi)
+      return true;
+    if(type >= icmpeq && type <= icmple)
+      return true;
+    return false;
+  }
+  bool hasRHS() const{
+    if(type <= imod || type==iwrite || type==istore || type==iphi || type==imove)
+      return true;
+    if(type >= icmpeq && type <= iblbc)
+      return true;
+    return false;
   }
   void emit() override{
     printf("    inst %d:",id);

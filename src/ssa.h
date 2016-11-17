@@ -10,7 +10,7 @@ class SSA{
 public:
   // Class specific
   Program *prog;
-  
+
   // Function specific member variables
   int id;
   CFG *cfg;
@@ -83,7 +83,7 @@ public:
     for(auto reg:regs){
       visited_blocks.clear();
       idf = cfg->idf(util::set_union(reg_blocks[reg], {cfg->root}));
-      
+
       Register* running_reg = Register::allocVar(reg->name);
       running_reg->convert(id++);
       DFS(cfg->root, reg, running_reg);
@@ -118,7 +118,7 @@ public:
         if(i->op1.reg==reg)
           i->op1.init(running_reg);
         if(i->op2.reg==reg)
-          i->op2.init(running_reg);        
+          i->op2.init(running_reg);
       }
     }
     // percolate register to successors
@@ -165,7 +165,7 @@ public:
     // Inserting all phi instructions
     for(int i=moves[block].size()-1, j=phis[block].size()-1;i>0;i--, j--){
       insert(block, moves[block][i-1], phis[block][j], moves[block][i]);
-    } 
+    }
     insert(block, phis[block][0], phis[block][1], moves[block][0]);
   }
 };

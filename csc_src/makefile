@@ -1,2 +1,2 @@
 all:
-	gcc -ggdb3 cs?.c -o ../csc
+	gcc -Wformat=0 -ggdb3 cs?.c -o ../csc

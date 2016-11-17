@@ -4,14 +4,13 @@ LDFLAGS =
 CXX = g++
 CXXFLAGS = -std=c++11 -g -Isrc
 
-all: dirs $(TARGET) run
+all: dirs csc $(TARGET) run
 
 run: $(TARGET) $(IF)
 	./$(TARGET) < $(IF)
 
 csc:
 	cd csc_src && make
-.PHONY: csc
 
 src = $(wildcard src/*.cpp)
 obj = $(patsubst src/%,build/%,$(src:.cpp=.o))
@@ -35,4 +34,4 @@ build/%.o: src/%.cpp
 clean:
 	rm -rf build/* csc $(TARGET)
 
-.PHONY: dirs clean csc
+.PHONY: dirs clean
