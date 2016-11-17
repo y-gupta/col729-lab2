@@ -3,7 +3,7 @@
     instr 3: enter 4
     instr 4: move 0 i#-4
     instr 5: cmplt i#-4 20
-    instr 6: blbc (5) [32]
+    instr 6: blbc (5) [33]
     instr 7: cmpeq 1 1
     instr 8: blbc (7) [19]
     instr 9: add i#-4 30
@@ -28,6 +28,7 @@
     instr 28: br [19]
     instr 29: add i#-4 3
     instr 30: move (29) i#-4
-    instr 31: br [5]
-    instr 32: ret 0
-    instr 33: nop
+    instr 31: move 0 i#-4
+    instr 32: br [5]
+    instr 33: ret 0
+    instr 34: nop

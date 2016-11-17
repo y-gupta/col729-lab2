@@ -16,6 +16,7 @@ void copy()
 {
   long a,b,c,d,e,f;
   long x;
+  e=1;
   a = 2;
   b = a;
   d = b;

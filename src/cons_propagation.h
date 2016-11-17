@@ -93,10 +93,25 @@ public:
   }
   void populateUse(Instruction *inst){
     if(inst->hasRHS()){
-      if(inst->op1.getType() == Value::typeReg)
+      if(inst->op1.getType() == Value::typeReg){
+        if(inst->op1.reg->is_var && var_def.find(inst->op1.reg) == var_def.end())
+        {
+          //vars those passed as params to a func (hence no def found)
+          var_def[inst->op1.reg] = NULL;
+          //var_def is only used to get lattice_cell. lattice_cell[NULL] is set as nonConst
+          //var_uses[NULL] is full of uses of params, which again is never used as a param is never def
+        }
         var_uses[var_def.at(inst->op1.reg)].push_back(inst);
-      if(inst->type != Instruction::imove && inst->op2.getType() == Value::typeReg)
+      }
+      if(inst->type != Instruction::imove && inst->op2.getType() == Value::typeReg){
+        if(inst->op2.reg->is_var && var_def.find(inst->op2.reg) == var_def.end())
+        {
+          //vars those passed as params to a func (hence no def found)
+          var_def[inst->op2.reg] = NULL;
+          //var_def is only used to get lattice_cell. lattice_cell[NULL] is set as nonConst
+        }
         var_uses[var_def.at(inst->op2.reg)].push_back(inst);
+      }
     }
   }
   set<BasicBlock*> block_flags;
@@ -157,6 +172,7 @@ public:
     Instruction* prev_inst = NULL;
     for(; i != NULL;i = i->next){
       populateUse(i);
+      lattice_cell[i] = Lattice();
       if(i->type == Instruction::iphi){
         setPhiEdges(bb,i,prev_inst);
       }
@@ -175,7 +191,7 @@ public:
     var_uses.clear();
     var_def.clear();
     lattice_cell.clear();
-
+    lattice_cell[NULL] = Lattice(Lattice::typeNonConst);
     entry = fn->leader;
     block_flags.clear();
     populateEdges(fn->getBlock(entry));
@@ -186,20 +202,24 @@ public:
     for(auto i2: edges[entry]){
       flow_WL.push_back(make_pair(entry, i2));
     }
-    // for(auto &i_nbrs: edges){
-    //   lattice_cell[i_nbrs.first] = Lattice();
-    // }
   }
   Lattice latEval(Instruction *inst){
     Lattice l1,l2;
     if(inst->op1.getType() == Value::typeCons)
-      l1 = Lattice(Lattice::typeConst, inst->op1.cons->val);
-    else if(inst->op1.getType() == Value::typeReg)
+    {
+      if(inst->op1.cons->type == Constant::typeLong)
+        l1 = Lattice(Lattice::typeConst, inst->op1.cons->val);
+      else
+        l1 = Lattice(Lattice::typeNonConst);
+    }else if(inst->op1.getType() == Value::typeReg)
       l1 = lattice_cell[var_def.at(inst->op1.reg)];
 
-    if(inst->op2.getType() == Value::typeCons)
-      l2 = Lattice(Lattice::typeConst, inst->op2.cons->val);
-    else if(inst->op2.getType() == Value::typeReg)
+    if(inst->op2.getType() == Value::typeCons){
+      if(inst->op2.cons->type == Constant::typeLong)
+        l2 = Lattice(Lattice::typeConst, inst->op2.cons->val);
+      else
+        l2 = Lattice(Lattice::typeNonConst);
+    }else if(inst->op2.getType() == Value::typeReg)
       l2 = lattice_cell[var_def.at(inst->op2.reg)];
 
     switch(inst->type){
@@ -254,7 +274,7 @@ public:
     if(inst->hasLHS() || inst->type == Instruction::imove){
       auto &left_val = lattice_cell[inst];
       if(left_val != val){
-        inst->meta += " v:" + string(val);
+        // inst->meta += " v:" + string(val);
         left_val = left_val & val;
         for(auto &i2: var_uses[inst])
           SSA_WL.push_back(make_pair(inst,i2));
@@ -283,7 +303,7 @@ public:
     auto val =  l1 & l2;
     if(val != lattice_cell[inst])
     {
-      inst->meta += " v:"+string(val);
+      // inst->meta += " v:"+string(val);
       lattice_cell[inst] = val;
       for(auto &i2: var_uses[inst])
         SSA_WL.push_back(make_pair(inst,i2));
@@ -298,7 +318,7 @@ public:
         flow_WL.pop_back();
 
         if(executable_edges.find(edge) == executable_edges.end()){
-          edge.second->meta += " f:"+std::to_string(count);
+          // edge.second->meta += " f:"+std::to_string(count);
           executable_edges.insert(edge);
 
           if(edge.second->type == Instruction::iphi){
@@ -311,7 +331,7 @@ public:
       }else if(!SSA_WL.empty()){
         auto edge = SSA_WL.back();
         SSA_WL.pop_back();
-        edge.second->meta += " s:"+std::to_string(count);
+        // edge.second->meta += " s:"+std::to_string(count);
         if(edge.second->type == Instruction::iphi)
           visitPhi(edge.second);
         else if(edgeCount(edge.second) >= 1)
@@ -323,19 +343,15 @@ public:
 
     for(auto &i_val: lattice_cell){
       auto inst = i_val.first;
+      if(inst == NULL || inst == entry)
+        continue;
       auto &val = i_val.second;
-      inst->addMetaFunction([val](CodeEmitter *){
-        string res;
-        res = " val:"+string(val);
-        return res;
-      });
-      if(val.isConst())
-      {
 
-        // for(auto &i2: var_uses[inst]){
-        //   if(i2->op1.type ==
-        // }
-      }
+      bool dead = (edgeCount(inst) == 0);
+      if(dead)
+        inst->meta += " dead";
+      else if(inst->hasLHS() || inst->type == Instruction::imove)
+        inst->meta += " val:"+string(val);
     }
     cerr<<"Done cons!!"<<endl;
   }

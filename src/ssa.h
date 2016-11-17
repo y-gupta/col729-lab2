@@ -80,6 +80,7 @@ public:
     // Creating iterated dominance frontier for each variable
     for(auto reg:regs){
       visited_blocks.clear();
+      id = 0;
       idf = cfg->idf(util::set_union(reg_blocks[reg], {cfg->root}));
 
       Register* running_reg = Register::allocVar(reg->name);
@@ -104,6 +105,8 @@ public:
     // Running instruction and register
     for(auto i=block->leader;i!=NULL;i=i->next){
       if(i->type == Instruction::imove){
+        if(i->op1.reg==reg)
+          i->op1.init(running_reg);
         if(i->op2.reg == reg){
           i->op2.init(Register::allocVar(reg->name));
           i->op2.reg->convert(id++);

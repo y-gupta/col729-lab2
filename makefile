@@ -1,5 +1,7 @@
 TARGET = opt
 IF = out.3addr
+OPT = none
+
 LDFLAGS =
 CXX = g++
 CXXFLAGS = -std=c++11 -g -Isrc
@@ -7,7 +9,7 @@ CXXFLAGS = -std=c++11 -g -Isrc
 all: dirs csc $(TARGET) run
 
 run: $(TARGET) $(IF)
-	./$(TARGET) < $(IF)
+	./$(TARGET) opt=$(OPT) < $(IF)
 
 csc:
 	cd csc_src && make

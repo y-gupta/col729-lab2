@@ -60,7 +60,7 @@ public:
     return false;
   }
   bool hasRHS() const{
-    if(type <= imod || type==iwrite || type==istore || type==iphi || type==imove)
+    if(type <= imod || type==iwrite || type==iparam || type==istore || type==iphi || type==imove)
       return true;
     if(type >= icmpeq && type <= iblbc)
       return true;
@@ -107,7 +107,7 @@ public:
     }
     calcMeta();
     if(meta.size())
-      printf(" ;%s", meta.c_str());
+      printf(" \t;%s", meta.c_str());
     printf("\n");
   }
 };
