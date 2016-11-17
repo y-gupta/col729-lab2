@@ -44,6 +44,16 @@ class ConsPropagation{
         return *this;
       return Lattice(typeNonConst);
     }
+    operator string() const {
+      string res;
+      if(isConst()){
+        res = to_string(val);
+      }else if(isNonConst())
+         res = "nonConst";
+      else
+        res = "unknown";
+      return res;
+    }
   };
 public:
   Program *prog;
@@ -120,7 +130,7 @@ public:
       phi_edges[i].first = make_pair(prev_i, i);
     else{
       auto it=bb->preds.begin();
-      assert(bb->preds.size() <= i->phi_parent1);
+      assert(bb->preds.size() > i->phi_parent1);
       std::advance(it, i->phi_parent1);
       auto i2 = (*it)->leader;
       while(i2->next != NULL)
@@ -131,7 +141,7 @@ public:
       phi_edges[i].second = make_pair(prev_i, i);
     }else{
       auto it=bb->preds.begin();
-      assert(bb->preds.size() <= i->phi_parent2);
+      assert(bb->preds.size() > i->phi_parent2);
       std::advance(it, i->phi_parent2);
       auto i2 = (*it)->leader;
       while(i2->next != NULL)
@@ -244,6 +254,7 @@ public:
     if(inst->hasLHS() || inst->type == Instruction::imove){
       auto &left_val = lattice_cell[inst];
       if(left_val != val){
+        inst->meta += " v:" + string(val);
         left_val = left_val & val;
         for(auto &i2: var_uses[inst])
           SSA_WL.push_back(make_pair(inst,i2));
@@ -272,6 +283,7 @@ public:
     auto val =  l1 & l2;
     if(val != lattice_cell[inst])
     {
+      inst->meta += " v:"+string(val);
       lattice_cell[inst] = val;
       for(auto &i2: var_uses[inst])
         SSA_WL.push_back(make_pair(inst,i2));
@@ -285,9 +297,8 @@ public:
         auto edge = flow_WL.back();
         flow_WL.pop_back();
 
-        // edge.second->meta += " f:"+std::to_string(count);
-
         if(executable_edges.find(edge) == executable_edges.end()){
+          edge.second->meta += " f:"+std::to_string(count);
           executable_edges.insert(edge);
 
           if(edge.second->type == Instruction::iphi){
@@ -300,7 +311,7 @@ public:
       }else if(!SSA_WL.empty()){
         auto edge = SSA_WL.back();
         SSA_WL.pop_back();
-        // edge.second->meta += " s:"+std::to_string(count);
+        edge.second->meta += " s:"+std::to_string(count);
         if(edge.second->type == Instruction::iphi)
           visitPhi(edge.second);
         else if(edgeCount(edge.second) >= 1)
@@ -315,12 +326,7 @@ public:
       auto &val = i_val.second;
       inst->addMetaFunction([val](CodeEmitter *){
         string res;
-        if(val.isConst()){
-          res = " const: "+std::to_string(val.val);
-        }else if(val.isNonConst())
-          res = " non-const";
-        else
-          res = " unknown";
+        res = " val:"+string(val);
         return res;
       });
       if(val.isConst())
