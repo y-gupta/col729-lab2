@@ -20,7 +20,7 @@ public:
   map<Register*, set<Instruction*> >  reg_insts;
   map<Register*, set<BasicBlock*> > reg_blocks;
   map<BasicBlock*, vector<Register*> > phis;
-  map<BasicBlock*, vector<Register*> > moves;
+  map<BasicBlock*, Register* > moves;
   map<BasicBlock*, set<BasicBlock*> > tree;
 
   SSA(Program *_prog):prog(_prog){
@@ -60,9 +60,7 @@ public:
     for(auto &bb:cfg->blocks){
       phis[bb] = {};
       phis[bb].assign(bb->getPred().size(), NULL);
-      moves[bb] = {};
-      if(bb->getPred().size()>=2)
-        moves[bb].assign(bb->getPred().size()-1, NULL);
+      moves[bb] = NULL;
     }
   }
   void createDominatorTree(){
@@ -99,11 +97,9 @@ public:
     visited_blocks.insert(block);
     // Virtual phi nodes take care
     if(idf.find(block)!=idf.end()){
-      for(int i=0;i<moves[block].size();i++){
-        moves[block][i] = (Register::allocVar(reg->name));
-        moves[block][i]->convert(id++);
-        running_reg = moves[block][i];
-      }
+      moves[block] = (Register::allocVar(reg->name));
+      moves[block]->convert(id++);
+      running_reg = moves[block];
     }
     // Running instruction and register
     for(auto i=block->leader;i!=NULL;i=i->next){
@@ -134,38 +130,41 @@ public:
       DFS(bb, reg, running_reg);
     }
   }
-  void insert(BasicBlock *block, Register *op1_reg, Register *op2_reg, Register *phi_reg){
-    // Instructions
+  void insertPhi(BasicBlock* block, Register* op1_reg, Register* op2_reg, int p1, int p2){
     Instruction *phi = Instruction::alloc();
     phi->type = Instruction::iphi;
-    phi->op1.init(op1_reg);
+    if(op1_reg)
+      phi->op1.init(op1_reg);
     phi->op2.init(op2_reg);
+    phi->phi_parent1 = p1;
+    phi->phi_parent2 = p2;
 
-    Instruction *move = Instruction::alloc();
-    move->type = Instruction::imove;
-    move->op1.init(phi->out);
-    move->op2.init(phi_reg);
+    Instruction* leader = block->leader;
+    leader->op1.init(phi->out);
 
-    Instruction *leader = block->leader;
-
-    // Connections
-    phi->next = move;
-
-    // Insertion
     swap(*leader, *phi);
     swap(leader, phi);
+    phi->next = leader;
+  }
+  void insertMove(BasicBlock* block, Register* op2_reg){
+    Instruction* move = Instruction::alloc();
+    move->type = Instruction::imove;
+    move->op2.init(op2_reg);
 
+    Instruction* leader = block->leader;
+    swap(*leader, *move);
+    swap(leader, move);
     move->next = leader;
   }
   void insertAll(BasicBlock* block){
     for(auto x:phis[block])
       assert(x!=NULL);
-    for(auto x:moves[block])
-      assert(x!=NULL);
+    assert(moves[block]!=NULL);
     // Inserting all phi instructions
-    for(int i=moves[block].size()-1, j=phis[block].size()-1;i>0;i--, j--){
-      insert(block, moves[block][i-1], phis[block][j], moves[block][i]);
+    insertMove(block, moves[block]);
+    for(int i=phis[block].size()-1;i>=2;i--){
+      insertPhi(block, NULL, phis[block][i], -1, i);
     }
-    insert(block, phis[block][0], phis[block][1], moves[block][0]);
+    insertPhi(block, phis[block][0], phis[block][1], 0, 1);
   }
 };
