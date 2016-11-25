@@ -72,6 +72,7 @@ public:
           my_copy_in = copy_out[parent];
         else
           my_copy_in = util::set_intersection(my_copy_in,copy_out[parent]);
+        initial = false;
       }
 
       if(prev_sz != my_copy_in.size())

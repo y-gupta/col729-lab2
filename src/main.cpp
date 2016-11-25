@@ -51,7 +51,7 @@ int main(int argc, char **argv){
   }else if(opts["opt"].find("none")!=0)
     cerr<<"Unsupported optimization/analysis: "<<opts["opt"]<<endl;
 
-  program.schedule(1);
+  program.schedule(2);
 
   if(opts["out"].find("3add")==0)
     program.emit();
